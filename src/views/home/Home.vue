@@ -37,6 +37,7 @@
   import BackTop from "components/content/backTop/BackTop"
 
   import {getHomeMultidata,getHomeGoods} from "network/home"
+  import {itemListenerMixin} from "common/mixin"
 
   import Scroll from "components/common/scroll/Scroll"
   export default {
@@ -51,6 +52,7 @@
       BackTop,
       Scroll,
     },
+    mixins:[itemListenerMixin],
     data(){
       return {
         banners:[],
@@ -64,7 +66,7 @@
         isShowBackTop:false,
         tabOffsetTop:0,
         isTabFixed:false,
-        saveY:0
+        saveY:0,
       }
     },
     computed:{
@@ -77,7 +79,10 @@
       this.$refs.scroll.refresh()
     },
     deactivated(){
+      // 1.保存Y值
       this.saveY = this.$refs.scroll.getScrollY()
+      // 2.取消全局事件的监听
+      this.$bus.$off('itemImgLoad',this.itemImgListener)
     },
     created(){
       // 请求多个数据（轮播图及他下面的）
@@ -89,10 +94,12 @@
     },
     mounted(){
       // 监听item中图片加载完成
-      const refresh = this.debounce(this.$refs.scroll.refresh,200)
-      this.$bus.$on('itemImageLoad',()=>{
-        refresh()
-      })
+      // const refresh = this.debounce(this.$refs.scroll.refresh,200)
+      // // 对坚挺的事件进行保存
+      // this.itemImgListener = ()=>{
+      //   refresh()
+      // }
+      // this.$bus.$on('itemImageLoad',this.itemImgListener)
     },
     methods:{
       // 事件监听相关的方法
